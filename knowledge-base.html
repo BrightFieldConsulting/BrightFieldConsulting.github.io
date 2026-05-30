@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Knowledge Base — Brightfield Consulting</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Instrument+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink: #0F0E0C;
+      --paper: #F5F0E8;
+      --paper-dark: #EDE7D9;
+      --accent: #5E17EB;
+      --accent-light: #9B6EF3;
+      --accent-pale: #EDE0FD;
+      --mid: #5C5650;
+      --muted: #9C9590;
+      --rule: #D8D0C4;
+      --white: #FDFAF5;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Instrument Sans', sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0.4;
+    }
+
+    /* ── NAV ── */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 4rem;
+      background: rgba(245,240,232,0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--rule);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-back {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mid);
+      transition: color 0.2s;
+    }
+
+    .nav-back:hover { color: var(--accent); }
+
+    .arrow {
+      transition: transform 0.2s;
+      display: inline-block;
+    }
+
+    .nav-back:hover .arrow { transform: translateX(-3px); }
+
+    /* ── HERO ── */
+    .hero {
+      background: var(--ink);
+      padding: 6rem 4rem 5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: 'FAQ';
+      position: absolute;
+      right: -1rem;
+      bottom: -3rem;
+      font-family: 'Playfair Display', serif;
+      font-size: 22rem;
+      font-weight: 900;
+      font-style: italic;
+      color: rgba(255,255,255,0.02);
+      line-height: 1;
+      pointer-events: none;
+      letter-spacing: -0.05em;
+    }
+
+    .hero-inner {
+      max-width: 700px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-tag {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent-light);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-tag::before {
+      content: '';
+      width: 1.5rem;
+      height: 1px;
+      background: var(--accent-light);
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      color: var(--white);
+      margin-bottom: 1.2rem;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      color: var(--accent-light);
+    }
+
+    .hero-sub {
+      font-size: 0.95rem;
+      color: rgba(245,240,232,0.5);
+      line-height: 1.8;
+      font-weight: 300;
+      max-width: 480px;
+    }
+
+    /* ── SEARCH ── */
+    .search-bar {
+      background: var(--white);
+      border-bottom: 1px solid var(--rule);
+      padding: 1.5rem 4rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      position: sticky;
+      top: 65px;
+      z-index: 90;
+    }
+
+    .search-icon {
+      color: var(--muted);
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .search-input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 0.9rem;
+      color: var(--ink);
+      outline: none;
+      font-weight: 300;
+    }
+
+    .search-input::placeholder { color: var(--muted); }
+
+    .result-count {
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-weight: 400;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+
+    /* ── MAIN LAYOUT ── */
+    .main {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: calc(100vh - 180px);
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      background: var(--paper-dark);
+      border-right: 1px solid var(--rule);
+      padding: 2.5rem 2rem;
+      position: sticky;
+      top: 128px;
+      height: fit-content;
+    }
+
+    .sidebar-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1.2rem;
+    }
+
+    .category-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .category-item a {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      text-decoration: none;
+      font-size: 0.83rem;
+      font-weight: 500;
+      color: var(--mid);
+      padding: 0.6rem 0.8rem;
+      border-radius: 2px;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .category-item a:hover,
+    .category-item a.active {
+      background: var(--accent-pale);
+      color: var(--accent);
+    }
+
+    .category-count {
+      font-size: 0.68rem;
+      background: var(--rule);
+      color: var(--muted);
+      padding: 0.15rem 0.5rem;
+      border-radius: 20px;
+      font-weight: 400;
+    }
+
+    .category-item a.active .category-count {
+      background: var(--accent);
+      color: white;
+    }
+
+    .sidebar-cta {
+      margin-top: 2.5rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--rule);
+    }
+
+    .sidebar-cta p {
+      font-size: 0.78rem;
+      color: var(--mid);
+      line-height: 1.6;
+      font-weight: 300;
+      margin-bottom: 1rem;
+    }
+
+    .sidebar-cta a {
+      display: block;
+      text-align: center;
+      background: var(--accent);
+      color: white;
+      text-decoration: none;
+      font-size: 0.73rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.75rem 1rem;
+      transition: background 0.2s;
+    }
+
+    .sidebar-cta a:hover { background: var(--ink); }
+
+    /* ── FAQ CONTENT ── */
+    .content {
+      padding: 3rem 4rem;
+    }
+
+    .category-section {
+      margin-bottom: 3.5rem;
+    }
+
+    .category-section:last-child { margin-bottom: 0; }
+
+    .category-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .category-title em { font-style: italic; color: var(--accent); }
+
+    .category-desc {
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-weight: 300;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    /* ── FAQ ITEMS ── */
+    .faq-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .faq-item {
+      border-bottom: 1px solid var(--rule);
+      overflow: hidden;
+    }
+
+    .faq-item:first-child { border-top: 1px solid var(--rule); }
+
+    .faq-question {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 0;
+      cursor: pointer;
+      gap: 1rem;
+      user-select: none;
+      transition: color 0.2s;
+    }
+
+    .faq-question:hover { color: var(--accent); }
+
+    .faq-q-text {
+      font-size: 0.92rem;
+      font-weight: 500;
+      line-height: 1.4;
+      flex: 1;
+    }
+
+    .faq-icon {
+      width: 28px;
+      height: 28px;
+      border: 1px solid var(--rule);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 1rem;
+      color: var(--accent);
+      transition: transform 0.3s, background 0.2s, border-color 0.2s;
+      font-weight: 300;
+    }
+
+    .faq-item.open .faq-icon {
+      transform: rotate(45deg);
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.16,1,0.3,1), padding 0.3s;
+    }
+
+    .faq-item.open .faq-answer {
+      max-height: 400px;
+      padding-bottom: 1.2rem;
+    }
+
+    .faq-answer-inner {
+      font-size: 0.88rem;
+      color: var(--mid);
+      line-height: 1.8;
+      font-weight: 300;
+      padding: 0.2rem 2rem 0 0;
+      border-left: 2px solid var(--accent-pale);
+      padding-left: 1rem;
+    }
+
+    /* ── NO RESULTS ── */
+    .no-results {
+      display: none;
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--muted);
+    }
+
+    .no-results h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--mid);
+    }
+
+    .no-results p {
+      font-size: 0.85rem;
+      font-weight: 300;
+    }
+
+    /* ── BOTTOM CTA ── */
+    .bottom-cta {
+      background: var(--ink);
+      padding: 5rem 4rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bottom-cta::before {
+      content: '?';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Playfair Display', serif;
+      font-size: 28rem;
+      font-weight: 900;
+      font-style: italic;
+      color: rgba(255,255,255,0.02);
+      pointer-events: none;
+    }
+
+    .bottom-cta-inner { position: relative; z-index: 1; }
+
+    .bottom-cta h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 3vw, 2.8rem);
+      font-weight: 900;
+      color: var(--white);
+      letter-spacing: -0.02em;
+      margin-bottom: 0.8rem;
+    }
+
+    .bottom-cta h2 em { font-style: italic; color: var(--accent-light); }
+
+    .bottom-cta p {
+      font-size: 0.92rem;
+      color: rgba(245,240,232,0.5);
+      font-weight: 300;
+      margin-bottom: 2rem;
+      max-width: 420px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.8;
+    }
+
+    .cta-btn {
+      display: inline-block;
+      background: var(--accent);
+      color: white;
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 1rem 2.2rem;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .cta-btn:hover { background: var(--white); color: var(--ink); transform: translateY(-2px); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #0a0a08;
+      padding: 1.8rem 4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: rgba(245,240,232,0.3);
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+    }
+
+    footer img { height: 28px; width: auto; filter: brightness(0) invert(1); opacity: 0.6; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      nav, .search-bar { padding: 1rem 1.5rem; }
+      .hero { padding: 4rem 1.5rem 3rem; }
+      .hero::before { display: none; }
+      .main { grid-template-columns: 1fr; }
+      .sidebar { position: static; border-right: none; border-bottom: 1px solid var(--rule); padding: 1.5rem; }
+      .content { padding: 2rem 1.5rem; }
+      .bottom-cta { padding: 4rem 1.5rem; }
+      footer { flex-direction: column; gap: 0.5rem; padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-back">
+    <span class="arrow">←</span> Back to Brightfield
+  </a>
+  <img src="logo.png" alt="Brightfield Consulting" style="height:34px; width:auto;"/>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag">Knowledge Base</div>
+    <h1>Answers to your<br><em>burning questions.</em></h1>
+    <p class="hero-sub">Everything you need to know about launch operations, building systems, and working with Brightfield — all in one place.</p>
+  </div>
+</div>
+
+<!-- SEARCH -->
+<div class="search-bar">
+  <span class="search-icon">🔍</span>
+  <input type="text" class="search-input" id="searchInput" placeholder="Search questions..."/>
+  <span class="result-count" id="resultCount"></span>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-label">Categories</div>
+    <ul class="category-list">
+      <li class="category-item">
+        <a href="#getting-started" class="active">
+          Getting Started
+          <span class="category-count">4</span>
+        </a>
+      </li>
+      <li class="category-item">
+        <a href="#operations">
+          Operations & Systems
+          <span class="category-count">4</span>
+        </a>
+      </li>
+      <li class="category-item">
+        <a href="#packages">
+          Our Packages
+          <span class="category-count">4</span>
+        </a>
+      </li>
+      <li class="category-item">
+        <a href="#working-with-us">
+          Working With Us
+          <span class="category-count">4</span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-cta">
+      <p>Still have questions? Book a free 30-minute discovery call and we'll answer everything.</p>
+      <a href="form.html">Book a Call →</a>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+    <div class="no-results" id="noResults">
+      <h3>No results found</h3>
+      <p>Try a different search term or browse the categories on the left.</p>
+    </div>
+
+    <!-- CATEGORY 1: Getting Started -->
+    <div class="category-section" id="getting-started">
+      <div class="category-title">Getting <em>Started</em></div>
+      <div class="category-desc">New to Brightfield? Start here.</div>
+      <div class="faq-list">
+
+        <div class="faq-item">
+          <div class="faq-question">
+            <span class="faq-q-text">What exactly is Launch Operations Consulting?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              [Placeholder — explain what launch operations consulting means, why it matters, and how it differs from general business consulting.]
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">
+            <span class="faq-q-text">Is Brightfield right for my business?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              [Placeholder — describe the ideal Brightfield client: new or early-stage business, founder who is great at their craft but needs operational structure.]
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">
+            <span class="faq-q-text">What happens on the discovery call?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              [Placeholder — walk through what a 30-minute discovery call looks like: no pitch, just conversation about the business, challenges, and what a good outcome looks like.]
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">
+            <span class="faq-q-text">Do I need to have a fully launched business to work with you?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              [Placeholder — explain that Brightfield works with pre-launch, newly launched, and businesses up to 12 months old. No stage is too early.]
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CATEGORY 2: Operations & Systems -->
+    <div class="category-section" id="operations">
+      <div class="category-title">Operations <em>& Systems</em></div>
+      <div class="category-desc">Understanding the backbone of a well-run business.</div>
+      <div class="faq-list">
+
+        <div class="faq-item">
+          <div class="faq-question">
+            <span class="faq-q-text">What is a Standard Operating Procedure (SOP) and why does my business need one?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              [Placeholder — explain SOPs in simple terms: a written record of how things get done in your business so you're not starting from scratch every time.]
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">
+            <span class="faq-q-text">What tools does Brightfield recommend for new businesses?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              [Placeholder — list recommended tools by category: CRM, project management, communication, email. Keep it beginner-friendly and free/low-cost.]
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">
+            <span class="faq-q-text">What does a proper customer onboarding process look like?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              [Placeholder — outline the key steps of a good customer onboarding flow: welcome, expectations setting, first touchpoints, check-ins, and offboarding.]
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">
+            <span class="faq-q-text">How do I know if my operations are broken?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              [Placeholder — list 5 signs your operations need attention: missed follow-ups, team confusion, no documentation, customer complaints, founder doing everything.]
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CATEGORY 3: Our Packages -->
+    <div class="category-section" id="packages">
+      <div class="category-title">Our <em>Packages</em></div>
+      <div class="category-desc">Understanding what's included and what's right for you.</div>
+      <div class="faq-list">
+
+        <div class="faq-item">
+          <div class="faq-question">
+            <span class="faq-q-text">What's the difference between The Launch Blueprint and The First 90 Days?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              [Placeholder — clearly distinguish the two: Launch Blueprint is a one-time setup delivered in 2 weeks. First 90 Days is ongoing hands-on support over 3 months.]
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">
+            <span class="faq-q-text">Who is The Foundation Audit for?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              [Placeholder — explain that the audit is for businesses 6–12 months in that feel disorganised, overwhelmed, or like they've outgrown their current setup.]
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">
+            <span class="faq-q-text">How much do your packages cost?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              [Placeholder — explain that pricing is discussed on the discovery call and tailored to the client's scope and needs. Give a general range if comfortable.]
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">
+            <span class="faq-q-text">Can I upgrade from one package to another?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              [Placeholder — confirm that clients can upgrade or extend their engagement at any point. Brightfield grows with the client.]
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CATEGORY 4: Working With Us -->
+    <div class="category-section" id="working-with-us">
+      <div class="category-title">Working <em>With Us</em></div>
+      <div class="category-desc">What to expect when you become a Brightfield client.</div>
+      <div class="faq-list">
+
+        <div class="faq-item">
+          <div class="faq-question">
+            <span class="faq-q-text">How do we communicate during the engagement?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              [Placeholder — describe the communication cadence: weekly check-ins, email updates, progress reports, and how the client can reach Brightfield between sessions.]
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">
+            <span class="faq-q-text">Will I own everything that's built during our engagement?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              [Placeholder — confirm that all SOPs, templates, systems, and documentation built during the engagement belong fully to the client. No dependency created.]
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">
+            <span class="faq-q-text">What do I need to prepare before we start?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              [Placeholder — list what a client needs to bring: access to their tools, a clear idea of their business goals, and willingness to commit time to the process.]
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">
+            <span class="faq-q-text">What if I'm not satisfied with the outcome?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              [Placeholder — explain Brightfield's commitment to client satisfaction: revision rounds, open feedback, and what happens if expectations aren't met.]
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- BOTTOM CTA -->
+<div class="bottom-cta">
+  <div class="bottom-cta-inner">
+    <h2>Still have a question?<br><em>Let's talk.</em></h2>
+    <p>Book a free 30-minute discovery call and get answers directly from the Brightfield team.</p>
+    <a href="form.html" class="cta-btn">Book a Free Discovery Call →</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <img src="logo.png" alt="Brightfield Consulting"/>
+  <div>© 2025 Brightfield Consulting · Toronto, Canada · Launch Operations for New Businesses</div>
+</footer>
+
+<script>
+  // ── FAQ ACCORDION ──
+  document.querySelectorAll('.faq-question').forEach(question => {
+    question.addEventListener('click', () => {
+      const item = question.parentElement;
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+      if (!isOpen) item.classList.add('open');
+    });
+  });
+
+  // ── SEARCH ──
+  const searchInput = document.getElementById('searchInput');
+  const resultCount = document.getElementById('resultCount');
+  const noResults = document.getElementById('noResults');
+  const allItems = document.querySelectorAll('.faq-item');
+  const allSections = document.querySelectorAll('.category-section');
+
+  searchInput.addEventListener('input', () => {
+    const query = searchInput.value.toLowerCase().trim();
+    let visible = 0;
+
+    if (!query) {
+      allItems.forEach(item => item.style.display = '');
+      allSections.forEach(s => s.style.display = '');
+      noResults.style.display = 'none';
+      resultCount.textContent = '';
+      return;
+    }
+
+    allSections.forEach(section => {
+      let sectionVisible = 0;
+      section.querySelectorAll('.faq-item').forEach(item => {
+        const text = item.querySelector('.faq-q-text').textContent.toLowerCase();
+        if (text.includes(query)) {
+          item.style.display = '';
+          sectionVisible++;
+          visible++;
+        } else {
+          item.style.display = 'none';
+        }
+      });
+      section.style.display = sectionVisible > 0 ? '' : 'none';
+    });
+
+    resultCount.textContent = visible > 0 ? `${visible} result${visible !== 1 ? 's' : ''}` : '';
+    noResults.style.display = visible === 0 ? 'block' : 'none';
+  });
+
+  // ── SIDEBAR ACTIVE STATE ──
+  const categoryLinks = document.querySelectorAll('.category-item a');
+  categoryLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      categoryLinks.forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>
