@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Book a Discovery Call — Brightfield Consulting</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Instrument+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink: #0F0E0C;
+      --paper: #F5F0E8;
+      --paper-dark: #EDE7D9;
+      --accent: #5E17EB;
+      --accent-light: #9B6EF3;
+      --accent-pale: #EDE0FD;
+      --mid: #5C5650;
+      --muted: #9C9590;
+      --rule: #D8D0C4;
+      --white: #FDFAF5;
+      --error: #D63B3B;
+      --success: #2D7D46;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Instrument Sans', sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE TEXTURE ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0.4;
+    }
+
+    /* ── NAV ── */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 4rem;
+      background: rgba(245,240,232,0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--rule);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-back {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mid);
+      transition: color 0.2s, gap 0.2s;
+    }
+
+    .nav-back:hover { color: var(--accent); }
+    .nav-back:hover .arrow { transform: translateX(-3px); }
+
+    .arrow {
+      font-size: 1rem;
+      transition: transform 0.2s;
+      display: inline-block;
+    }
+
+    /* ── LAYOUT ── */
+    .page {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      min-height: calc(100vh - 65px);
+    }
+
+    /* ── LEFT PANEL ── */
+    .left {
+      background: var(--ink);
+      padding: 5rem 4rem;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .left::before {
+      content: 'BC';
+      position: absolute;
+      bottom: -3rem;
+      left: -2rem;
+      font-family: 'Playfair Display', serif;
+      font-size: 22rem;
+      font-weight: 900;
+      font-style: italic;
+      color: rgba(255,255,255,0.02);
+      line-height: 1;
+      pointer-events: none;
+      letter-spacing: -0.05em;
+    }
+
+    .left-top { position: relative; z-index: 1; }
+
+    .left-tag {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent-light);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 2rem;
+    }
+
+    .left-tag::before {
+      content: '';
+      width: 1.5rem;
+      height: 1px;
+      background: var(--accent-light);
+    }
+
+    .left h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 3.5vw, 3.2rem);
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      color: var(--white);
+      margin-bottom: 1.5rem;
+    }
+
+    .left h1 em {
+      font-style: italic;
+      color: var(--accent-light);
+    }
+
+    .left-desc {
+      font-size: 0.92rem;
+      color: rgba(245,240,232,0.5);
+      line-height: 1.8;
+      font-weight: 300;
+      max-width: 340px;
+    }
+
+    .what-to-expect {
+      position: relative;
+      z-index: 1;
+      margin-top: 3rem;
+    }
+
+    .expect-label {
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(245,240,232,0.3);
+      margin-bottom: 1.2rem;
+    }
+
+    .expect-items {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .expect-item {
+      display: flex;
+      gap: 0.9rem;
+      align-items: flex-start;
+    }
+
+    .expect-icon {
+      width: 28px;
+      height: 28px;
+      border: 1px solid rgba(94,23,235,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--accent-light);
+      font-size: 0.75rem;
+      margin-top: 1px;
+    }
+
+    .expect-text {
+      font-size: 0.82rem;
+      color: rgba(245,240,232,0.6);
+      line-height: 1.55;
+      font-weight: 300;
+    }
+
+    .expect-text strong {
+      display: block;
+      color: var(--white);
+      font-weight: 500;
+      font-size: 0.85rem;
+      margin-bottom: 0.15rem;
+    }
+
+    .left-bottom {
+      position: relative;
+      z-index: 1;
+      padding-top: 3rem;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      margin-top: 3rem;
+    }
+
+    .support-note {
+      font-size: 0.78rem;
+      color: rgba(245,240,232,0.35);
+      line-height: 1.6;
+    }
+
+    .support-note a {
+      color: var(--accent-light);
+      text-decoration: none;
+    }
+
+    .support-note a:hover { text-decoration: underline; }
+
+    /* ── RIGHT PANEL — FORM ── */
+    .right {
+      padding: 5rem 4rem;
+      background: var(--white);
+      overflow-y: auto;
+    }
+
+    .form-header {
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .step-indicator {
+      display: flex;
+      gap: 0.4rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .step-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--rule);
+      transition: background 0.3s;
+    }
+
+    .step-dot.active { background: var(--accent); width: 20px; border-radius: 3px; }
+    .step-dot.done { background: var(--accent-light); }
+
+    .form-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.4rem;
+    }
+
+    .form-subtitle {
+      font-size: 0.88rem;
+      color: var(--mid);
+      font-weight: 300;
+    }
+
+    /* ── FORM FIELDS ── */
+    form { display: flex; flex-direction: column; gap: 0; }
+
+    .form-section {
+      margin-bottom: 2.5rem;
+    }
+
+    .section-heading {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .section-heading::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--rule);
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-bottom: 1rem;
+    }
+
+    .field:last-child { margin-bottom: 0; }
+
+    label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--ink);
+    }
+
+    label .req {
+      color: var(--accent);
+      margin-left: 2px;
+    }
+
+    label .hint {
+      font-weight: 300;
+      color: var(--muted);
+      font-size: 0.7rem;
+      margin-left: 0.3rem;
+    }
+
+    input, select, textarea {
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 400;
+      color: var(--ink);
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      padding: 0.8rem 1rem;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+      width: 100%;
+      appearance: none;
+      border-radius: 0;
+    }
+
+    input::placeholder, textarea::placeholder { color: var(--muted); font-weight: 300; }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      background: var(--white);
+      box-shadow: 0 0 0 3px rgba(94,23,235,0.08);
+    }
+
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239C9590' stroke-width='1.5' fill='none' stroke-linecap='square'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      padding-right: 2.5rem;
+      cursor: pointer;
+    }
+
+    textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+
+    /* ── RADIO / CHECKBOX CARDS ── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.6rem;
+    }
+
+    .card-grid.two-col { grid-template-columns: 1fr 1fr; }
+
+    .card-option { position: relative; }
+
+    .card-option input[type="radio"],
+    .card-option input[type="checkbox"] {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .card-label {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      padding: 0.9rem 1rem;
+      border: 1px solid var(--rule);
+      background: var(--paper);
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .card-label:hover { border-color: var(--accent-light); background: var(--accent-pale); }
+
+    .card-option input:checked + .card-label {
+      border-color: var(--accent);
+      background: var(--accent-pale);
+    }
+
+    .card-label-title {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .card-label-sub {
+      font-size: 0.7rem;
+      color: var(--muted);
+      font-weight: 300;
+      line-height: 1.4;
+    }
+
+    .card-option input:checked + .card-label .card-label-title { color: var(--accent); }
+
+    /* ── DATE/TIME ROW ── */
+    .datetime-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    /* ── SUBMIT ── */
+    .form-footer {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--rule);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .submit-btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 1.1rem 2rem;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      width: 100%;
+    }
+
+    .submit-btn:hover { background: var(--ink); transform: translateY(-1px); }
+    .submit-btn:active { transform: translateY(0); }
+
+    .form-note {
+      font-size: 0.73rem;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.6;
+      font-weight: 300;
+    }
+
+    /* ── SUCCESS STATE ── */
+    .success-state {
+      display: none;
+      text-align: center;
+      padding: 4rem 2rem;
+    }
+
+    .success-icon {
+      width: 64px;
+      height: 64px;
+      border: 2px solid var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 2rem;
+      font-size: 1.5rem;
+      color: var(--accent);
+    }
+
+    .success-state h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 900;
+      margin-bottom: 0.8rem;
+    }
+
+    .success-state p {
+      font-size: 0.92rem;
+      color: var(--mid);
+      font-weight: 300;
+      line-height: 1.8;
+      max-width: 360px;
+      margin: 0 auto 2rem;
+    }
+
+    .back-btn {
+      display: inline-block;
+      text-decoration: none;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 0.8rem 1.8rem;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .back-btn:hover { background: var(--accent); color: white; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      nav { padding: 1rem 1.5rem; }
+      .page { grid-template-columns: 1fr; }
+      .left { padding: 3rem 1.5rem; }
+      .left::before { display: none; }
+      .right { padding: 3rem 1.5rem; }
+      .field-row { grid-template-columns: 1fr; }
+      .card-grid { grid-template-columns: 1fr 1fr; }
+      .card-grid.two-col { grid-template-columns: 1fr; }
+      .datetime-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-back">
+    <span class="arrow">←</span> Back to Brightfield
+  </a>
+  <img src="logo.png" alt="Brightfield Consulting" style="height:34px; width:auto;"/>
+</nav>
+
+<!-- PAGE -->
+<div class="page">
+
+  <!-- LEFT PANEL -->
+  <div class="left">
+    <div class="left-top">
+      <div class="left-tag">Discovery Call</div>
+      <h1>Let's figure out<br>what your business<br><em>actually needs.</em></h1>
+      <p class="left-desc">Fill in the form and we'll reach out within 24 hours to confirm your discovery call. No pressure, no pitch — just an honest conversation about where you are and where you want to be.</p>
+
+      <div class="what-to-expect" style="margin-top:2.5rem;">
+        <div class="expect-label">What happens next</div>
+        <div class="expect-items">
+          <div class="expect-item">
+            <div class="expect-icon">01</div>
+            <div class="expect-text">
+              <strong>We review your submission</strong>
+              Within 24 hours, we read through everything you share.
+            </div>
+          </div>
+          <div class="expect-item">
+            <div class="expect-icon">02</div>
+            <div class="expect-text">
+              <strong>We confirm your call</strong>
+              You'll get an email confirming your preferred date and time.
+            </div>
+          </div>
+          <div class="expect-item">
+            <div class="expect-icon">03</div>
+            <div class="expect-text">
+              <strong>We talk — honestly</strong>
+              A 30-minute call to understand your situation and recommend the right next step.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="left-bottom">
+      <p class="support-note">
+        Have a quick question before booking?<br>
+        Email us at <a href="mailto:hello.brightfieldconsulting@gmail.com">hello.brightfieldconsulting@gmail.com</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL — FORM -->
+  <div class="right">
+    <div class="form-header">
+      <div class="step-indicator">
+        <div class="step-dot active"></div>
+        <div class="step-dot"></div>
+        <div class="step-dot"></div>
+        <div class="step-dot"></div>
+      </div>
+      <div class="form-title">Book a Discovery Call</div>
+      <div class="form-subtitle">Takes about 3 minutes. All fields marked <span style="color:var(--accent);">*</span> are required.</div>
+    </div>
+
+    <!-- SUCCESS STATE -->
+    <div class="success-state" id="successState">
+      <div class="success-icon">✓</div>
+      <h2>You're all set!</h2>
+      <p>We've received your request and will be in touch within 24 hours to confirm your discovery call. Check your inbox!</p>
+      <a href="index.html" class="back-btn">Back to Brightfield</a>
+    </div>
+
+    <!-- FORM -->
+    <form id="intakeForm" action="https://formspree.io/f/mbdbwwwn" method="POST">
+
+      <!-- SECTION 1: About You -->
+      <div class="form-section">
+        <div class="section-heading">About You</div>
+        <div class="field-row">
+          <div class="field">
+            <label>First Name <span class="req">*</span></label>
+            <input type="text" name="first_name" placeholder="e.g. Amara" required/>
+          </div>
+          <div class="field">
+            <label>Last Name <span class="req">*</span></label>
+            <input type="text" name="last_name" placeholder="e.g. Okonkwo" required/>
+          </div>
+        </div>
+        <div class="field">
+          <label>Email Address <span class="req">*</span></label>
+          <input type="email" name="email" placeholder="yourname@email.com" required/>
+        </div>
+        <div class="field">
+          <label>WhatsApp / Phone Number <span class="hint">(optional but helpful)</span></label>
+          <input type="tel" name="phone" placeholder="+234 800 000 0000"/>
+        </div>
+      </div>
+
+      <!-- SECTION 2: About Your Business -->
+      <div class="form-section">
+        <div class="section-heading">About Your Business</div>
+        <div class="field">
+          <label>Business Name <span class="req">*</span></label>
+          <input type="text" name="business_name" placeholder="What's your business called?" required/>
+        </div>
+        <div class="field">
+          <label>What does your business do? <span class="req">*</span></label>
+          <input type="text" name="business_type" placeholder="e.g. Online fashion store, Coaching practice, Tech startup" required/>
+        </div>
+        <div class="field">
+          <label>Where is your business right now? <span class="req">*</span></label>
+          <div class="card-grid two-col">
+            <div class="card-option">
+              <input type="radio" name="business_stage" id="stage1" value="Pre-launch (not yet open)" required/>
+              <label class="card-label" for="stage1">
+                <span class="card-label-title">Pre-launch</span>
+                <span class="card-label-sub">Not open yet, still planning</span>
+              </label>
+            </div>
+            <div class="card-option">
+              <input type="radio" name="business_stage" id="stage2" value="Just launched (0–3 months)"/>
+              <label class="card-label" for="stage2">
+                <span class="card-label-title">Just launched</span>
+                <span class="card-label-sub">0 – 3 months old</span>
+              </label>
+            </div>
+            <div class="card-option">
+              <input type="radio" name="business_stage" id="stage3" value="Growing (3–12 months)"/>
+              <label class="card-label" for="stage3">
+                <span class="card-label-title">Growing</span>
+                <span class="card-label-sub">3 – 12 months old</span>
+              </label>
+            </div>
+            <div class="card-option">
+              <input type="radio" name="business_stage" id="stage4" value="Established (1+ year)"/>
+              <label class="card-label" for="stage4">
+                <span class="card-label-title">Established</span>
+                <span class="card-label-sub">1+ year, needs restructuring</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 3: What You Need -->
+      <div class="form-section">
+        <div class="section-heading">What You Need</div>
+        <div class="field">
+          <label>Which package interests you most? <span class="req">*</span></label>
+          <div class="card-grid">
+            <div class="card-option">
+              <input type="radio" name="package" id="pkg1" value="The Launch Blueprint" required/>
+              <label class="card-label" for="pkg1">
+                <span class="card-label-title">The Launch Blueprint</span>
+                <span class="card-label-sub">First 30–60 days setup</span>
+              </label>
+            </div>
+            <div class="card-option">
+              <input type="radio" name="package" id="pkg2" value="The First 90 Days"/>
+              <label class="card-label" for="pkg2">
+                <span class="card-label-title">The First 90 Days</span>
+                <span class="card-label-sub">Hands-on 3-month support</span>
+              </label>
+            </div>
+            <div class="card-option">
+              <input type="radio" name="package" id="pkg3" value="The Foundation Audit"/>
+              <label class="card-label" for="pkg3">
+                <span class="card-label-title">The Foundation Audit</span>
+                <span class="card-label-sub">Fix existing operations</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>What's your biggest operational challenge right now? <span class="req">*</span></label>
+          <textarea name="challenge" placeholder="Tell us what's breaking down — no systems, missed follow-ups, messy onboarding, unclear team roles, anything. The more specific you are, the better we can help." required></textarea>
+        </div>
+        <div class="field">
+          <label>What does success look like for you in 90 days?</label>
+          <textarea name="success_vision" placeholder="e.g. A smooth onboarding process, a team that knows what they're doing, customers who feel well-supported..." style="min-height:80px;"></textarea>
+        </div>
+      </div>
+
+      <!-- SECTION 4: Schedule -->
+      <div class="form-section">
+        <div class="section-heading">Almost There</div>
+        <p style="font-size:0.88rem; color:var(--mid); font-weight:300; line-height:1.7;">Once you submit this form, you'll be taken directly to our booking page to pick a date and time that works for you. Your Google Meet link will be generated automatically and sent to your email.</p>
+      </div>
+
+      <!-- SUBMIT -->
+      <div class="form-footer">
+        <button type="submit" class="submit-btn">Submit & Book My Call →</button>
+        <p class="form-note">
+          By submitting this form, your information is sent securely to Brightfield Consulting.<br>
+          We will never share your details with third parties.
+        </p>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<script>
+  // Animate step dots as user fills form
+  const sections = document.querySelectorAll('.form-section');
+  const dots = document.querySelectorAll('.step-dot');
+
+  function updateDots() {
+    let filled = 0;
+    sections.forEach((section, i) => {
+      const inputs = section.querySelectorAll('input[required], select[required], textarea[required]');
+      const allFilled = [...inputs].every(inp => {
+        if (inp.type === 'radio') {
+          return section.querySelector(`input[name="${inp.name}"]:checked`);
+        }
+        return inp.value.trim() !== '';
+      });
+      if (allFilled) filled = i + 1;
+    });
+    dots.forEach((dot, i) => {
+      dot.classList.remove('active', 'done');
+      if (i < filled) dot.classList.add('done');
+      else if (i === filled) dot.classList.add('active');
+    });
+  }
+
+  document.getElementById('intakeForm').addEventListener('input', updateDots);
+
+  // Handle form submission
+  const form = document.getElementById('intakeForm');
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = form.querySelector('.submit-btn');
+    btn.textContent = 'Sending...';
+    btn.disabled = true;
+
+    try {
+      const response = await fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (response.ok) {
+        window.location.href = 'https://calendly.com/brightfield-consulting/30min';
+      } else {
+        btn.textContent = 'Something went wrong — try again';
+        btn.disabled = false;
+      }
+    } catch {
+      btn.textContent = 'Something went wrong — try again';
+      btn.disabled = false;
+    }
+  });
+</script>
+
+</body>
+</html>
