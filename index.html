@@ -99,6 +99,70 @@
       transform: translateY(-1px);
     }
 
+    /* ── HAMBURGER ── */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 0.4rem;
+      background: none;
+      border: none;
+      z-index: 200;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--ink);
+      transition: transform 0.3s, opacity 0.3s;
+    }
+
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* ── MOBILE MENU ── */
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--paper);
+      z-index: 150;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 2rem;
+      animation: fadeUp 0.3s ease both;
+    }
+
+    .mobile-menu.open { display: flex; }
+
+    .mobile-menu a {
+      text-decoration: none;
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--ink);
+      letter-spacing: -0.02em;
+      transition: color 0.2s;
+    }
+
+    .mobile-menu a:hover { color: var(--accent); }
+
+    .mobile-menu .mobile-btn {
+      background: var(--accent);
+      color: white !important;
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 0.85rem !important;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 1rem 2.5rem;
+      margin-top: 1rem;
+    }
+
     /* ── HERO ── */
     .hero {
       min-height: 100vh;
@@ -839,6 +903,7 @@
       nav { padding: 1.2rem 1.5rem; }
       nav ul { display: none; }
       nav a img { height: 50px !important; }
+      .hamburger { display: flex; }
       .hero { grid-template-columns: 1fr; padding: 7rem 1.5rem 3rem; gap: 2rem; }
       .hero-bg-text { display: none; }
       h1 { font-size: 2.5rem; }
@@ -887,7 +952,21 @@
     <li><a href="knowledge-base.html">Knowledge Base</a></li>
     <li><a href="form.html" class="nav-btn">Let's Talk</a></li>
   </ul>
+  <button class="hamburger" id="hamburger" aria-label="Open menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
 </nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#problem" class="mobile-link">Why Us</a>
+  <a href="#services" class="mobile-link">Services</a>
+  <a href="#process" class="mobile-link">Process</a>
+  <a href="knowledge-base.html" class="mobile-link">Knowledge Base</a>
+  <a href="form.html" class="mobile-btn">Let's Talk</a>
+</div>
 
 <!-- HERO -->
 <section class="hero">
@@ -1139,6 +1218,25 @@
   <img src="logo.png" alt="Brightfield Consulting" style="height:36px; width:auto; filter:brightness(0) invert(1);"/>
   <div>© 2025 Brightfield Consulting · Toronto, Canada · Launch Operations for New Businesses</div>
 </footer>
+
+<script>
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobileMenu');
+
+  hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('open');
+    mobileMenu.classList.toggle('open');
+    document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+  });
+
+  document.querySelectorAll('.mobile-link, .mobile-btn').forEach(link => {
+    link.addEventListener('click', () => {
+      hamburger.classList.remove('open');
+      mobileMenu.classList.remove('open');
+      document.body.style.overflow = '';
+    });
+  });
+</script>
 
 </body>
 </html>
